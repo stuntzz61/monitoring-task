@@ -1,0 +1,10 @@
+[Unit]
+Description=Monitor test process every minute
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/test_monitor.sh
+
+[Install]
+WantedBy=multi-user.target
