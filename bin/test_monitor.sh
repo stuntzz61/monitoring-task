@@ -14,15 +14,26 @@ fi
 if [[ -f "$PID_FILE" ]]; then
     LAST_PID=$(cat "$PID_FILE")
     if [[ "$CURRENT_PID" != "$LAST_PID" ]]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') Process $PROCESS_NAME restarted (old PID: $LAST_PID, new PID: $CURRENT_PID)" >> "$LOG_FILE"
+     logger -t test_monitor "Failed to reach monitoring server at $API_URL"
     fi
 fi
 
 echo "$CURRENT_PID" > "$PID_FILE"
 
-curl -fsS --max-time 5 "$API_URL" > /dev/null 2>&1
+JSON_PAYLOAD=$(jq -n \
+  --arg status "ok" \
+  --arg pid "$CURRENT_PID" \
+  --arg time "$(date -Iseconds)" \
+  '{proc_status: $status, pid: $pid, timestamp: $time}')
+
+# Отправляем запрос
+curl -fsS --max-time 5 -X POST "$API_URL" \
+  -H "Content-Type: application/json" \
+  -d "$JSON_PAYLOAD" \
+  > /dev/null 2>&1
+
 if [[ $? -ne 0 ]]; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S') Failed to reach monitoring server at $API_URL" >> "$LOG_FILE"
+    logger -t test_monitor "Failed to reach monitoring server at $API_URL"
 fi
 
 exit 0
