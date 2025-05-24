@@ -47,8 +47,12 @@ sudo systemctl enable --now test-monitor.timer
 Ручной запуск скрипта:
 ~/monitoring-task/bin/test_monitor.sh
 
+# Доп. функция
 Проверка лога через journalctl:
 journalctl -t test_monitor --since "10 minutes ago"
+
+Проверка логов в файле:
+sudo tail /var/log/monitoring.log
 
 Проверка systemd-состояния:
 systemctl status test-monitor.service
@@ -83,6 +87,12 @@ sudo systemctl stop test-monitor.service
 Отключить автозапуск при загрузке:
 sudo systemctl disable test-monitor.timer
 sudo systemctl disable test-monitor.service
+
+# Тестирование
+При использовании https://test.com/monitoring/test/api (как в тз) сервер возвращает ошибку (HTTP 403), что корректно логируется как сбой
+мониторинга.
+При замене на другой API https://httpbin.org/post запросы успешно проходят.(Успешные запросы не фиксируются, т.к противоречит ТЗ)
+но, при временном методе для проверки в логах фиксируется "Monitoring success (HTTP 200)".
 
 Обратная связь:
 TG: @stuntzzz
